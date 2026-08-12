@@ -1,0 +1,908 @@
+{
+  "name": "AI Lead Generation Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Lead Generation Form",
+        "formDescription": "Submit lead information for qualification and outreach.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Lead Name"
+            },
+            {
+              "fieldLabel": "Job Title"
+            },
+            {
+              "fieldLabel": "Company"
+            },
+            {
+              "fieldLabel": "Industry"
+            },
+            {
+              "fieldLabel": "Company Size"
+            },
+            {
+              "fieldLabel": "Location"
+            },
+            {
+              "fieldLabel": "Website"
+            },
+            {
+              "fieldLabel": "Pain Point"
+            },
+            {
+              "fieldLabel": "Buying Signal"
+            },
+            {
+              "fieldLabel": "Source"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        0
+      ],
+      "id": "95e405a9-614b-4ff6-b2e4-beccf0dac498",
+      "name": "On form submission",
+      "webhookId": "22899378-61a9-4b40-b180-6b2c40f5f8dd"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b50b4859-11e5-4d2d-9982-213c5439cb4c",
+              "name": "lead_name",
+              "value": "={{$json[\"Lead Name\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "5fc21ece-d329-48e1-922f-9e04b3495c72",
+              "name": "job_title",
+              "value": "={{$json[\"Job Title\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "75ccc46e-867c-4db8-8fa2-775bd354b42a",
+              "name": "company",
+              "value": "={{$json[\"Company\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "d0b12174-145c-455d-97c6-063f5e220f52",
+              "name": "industry",
+              "value": "={{$json[\"Industry\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "398e8ddf-9fef-4e1f-9dc0-3bcfa7378804",
+              "name": "company_size",
+              "value": "={{$json[\"Company Size\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "c43279cf-05f9-49f9-84b6-42aeeed2ba7e",
+              "name": "location",
+              "value": "={{$json[\"Location\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "226d77fb-8195-46ad-a006-369564f36f49",
+              "name": "website",
+              "value": "={{$json[\"Website\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "7ed2f7ee-0f39-41c1-a829-0ab0cf75909e",
+              "name": "pain_point",
+              "value": "={{$json[\"Pain Point\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "aa3a26b5-9c49-43e5-9cc5-c820e75ae163",
+              "name": "buying_signal",
+              "value": "={{$json[\"Buying Signal\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "a8d06fa9-915e-4efd-8971-9bb381787fa8",
+              "name": "source",
+              "value": "={{$json[\"Source\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "6f1ae1fe-f7f6-424b-9365-281fd6062c14",
+              "name": "email",
+              "value": "={{$json[\"Email\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "9b0bba21-4ce7-4e32-9f48-91ea042b930a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "collection": "leads",
+        "fields": "=lead_name, job_title, company, industry, company_size, location, website, pain_point, buying_signal, source, email",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "a62d02d1-0889-4ba2-8897-09f19b768adf",
+      "name": "Insert documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "J2P4AxqkMrjM7hjc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "collection": "leads",
+        "options": {},
+        "query": "={\n  \"email\": \"{{$json.email}}\"\n}"
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "972cebeb-2479-49d8-a8c7-9eac08fd4a5c",
+      "name": "Find documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "J2P4AxqkMrjM7hjc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        896,
+        0
+      ],
+      "id": "c1597dc0-b642-48b3-80bc-92145640fcb8",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an intelligent AI Lead Qualification and Sales Support Agent.\n\nAnalyze this lead:\n\nLead Name: {{ $json.lead_name }}\nJob Title: {{ $json.job_title }}\nCompany: {{ $json.company }}\nIndustry: {{ $json.industry }}\nCompany Size: {{ $json.company_size }}\nLocation: {{ $json.location }}\nWebsite: {{ $json.website }}\nBusiness Need or Pain Point: {{ $json.pain_point }}\nBuying Signal: {{ $json.buying_signal }}\nSource of Lead: {{ $json.source }}\nContact Information: {{ $json.email }}\n\nFollow these rules:\n\n1. Determine whether the lead is Qualified or Not Qualified.\n2. Score the lead from 0 to 100.\n3. lead_score MUST be a number, not a string. Example: 85, not \"85\".\n4. Consider:\n\n   * Job/title relevance\n   * Company fit\n   * Industry fit\n   * Potential business need\n   * Buying intent or buying signals\n   * Data completeness\n5. Provide a short and clear reason for the qualification decision.\n6. Do not invent missing company information, personal information, contact details, buying signals, or business facts.\n7. If important information is missing, use Unknown rather than guessing.\n8. For qualified leads, create a concise personalization summary for outreach.\n9. Generate a professional outreach subject and message based only on available information.\n10. Do not send messages yourself.\n11. If the lead is not qualified, recommend either nurture or archive.\n12. Recommended action must be one of: outreach, nurture, archive.\n13. Return ONLY the 12 fields defined by the Structured Output Parser.\n14. Do not add any other fields.\n\nReturn the result using the connected Structured Output Parser.\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1120,
+        208
+      ],
+      "id": "a8353236-6c9b-4a53-939e-4b424c2264b5",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "971bcc68-7642-4f98-89d8-157ab2379e10",
+              "leftValue": "={{$json.output.qualification}}",
+              "rightValue": "Qualified",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1440,
+        80
+      ],
+      "id": "a1c49bec-8bf7-4073-8076-da03fb06b7e7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Lead Outreach Approval",
+        "formDescription": "Review the AI-generated outreach message and approve or reject it before sending.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Approval",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Approve"
+                  },
+                  {
+                    "option": "Reject"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1776,
+        64
+      ],
+      "id": "2f813eb9-e776-4ba0-809d-1debb2f93217",
+      "name": "Wait",
+      "webhookId": "6a2f976f-fb4f-4346-bacd-61a30a66136d"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Find documents').item.json.email }}",
+        "subject": "={{ $('AI Agent').item.json.output.email_subject }}",
+        "message": "={{ $('AI Agent').item.json.output.email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2176,
+        176
+      ],
+      "id": "f5ec2809-0c82-4d9c-863a-8508ca9b913a",
+      "name": "Send a message",
+      "webhookId": "92613ad1-cfd6-496b-abf1-808373130e14",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "otDRwvlppZTEieVN",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "collection": "leads",
+        "updateKey": "lead_name",
+        "fields": "status",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1.4,
+      "position": [
+        2496,
+        480
+      ],
+      "id": "684a6ce6-cd88-4f00-aa33-8dedab93bfe6",
+      "name": "Update documents",
+      "credentials": {
+        "mongoDb": {
+          "id": "J2P4AxqkMrjM7hjc",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"lead_name\": \"\",\n  \"company\": \"\",\n  \"job_title\": \"\",\n  \"qualification\": \"\",\n  \"lead_score\": 0,\n  \"reason\": \"\",\n  \"pain_point\": \"\",\n  \"buying_signal\": \"\",\n  \"personalization\": \"\",\n  \"recommended_action\": \"\",\n  \"email_subject\": \"\",\n  \"email_body\": \"\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1472,
+        416
+      ],
+      "id": "69819744-58de-4494-91f2-a0ebeefdf2e0",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6308c91f-ad1a-413f-a409-42f898e6dc5c",
+              "leftValue": "={{$json.Approval}}",
+              "rightValue": "Approve",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1936,
+        256
+      ],
+      "id": "c8a1390f-9b69-430b-8cb9-4bcaad1ba362",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        448
+      ],
+      "id": "1e969e02-dc1e-40ef-809f-7361ae75575d",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "JWuypnDd8mmdGf9W",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Lead Response",
+        "formDescription": "Record the lead's response",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "response",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Interested"
+                  },
+                  {
+                    "option": "Not Interested"
+                  },
+                  {
+                    "option": "No Response"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        176
+      ],
+      "id": "2c45971e-10e2-407b-a914-e6433147dd8a",
+      "name": "Wait1",
+      "webhookId": "d6f848a5-13bb-40c5-9fac-fb255220abd0"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f9bcd3b7-100b-49cf-8c1a-b8a9131fe94d",
+              "leftValue": "={{ $json.response }}",
+              "rightValue": "Interested",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2624,
+        176
+      ],
+      "id": "c02d8a28-f0eb-4eab-85ce-79376b5ff249",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c7df8038-0f64-4868-ab63-92eb161494ed",
+              "name": "status",
+              "value": "sales_handoff",
+              "type": "string"
+            },
+            {
+              "id": "3588c9d2-3fdd-479d-964b-aa3bc31209d9",
+              "name": "lead_name",
+              "value": "={{ $('AI Agent').item.json.output.lead_name }}",
+              "type": "string"
+            },
+            {
+              "id": "91d67dc1-1eb1-4ea0-b294-5767259cf266",
+              "name": "company",
+              "value": "={{ $('AI Agent').item.json.output.company }}",
+              "type": "string"
+            },
+            {
+              "id": "badee318-756d-46ca-89a2-e379d8277a88",
+              "name": "lead_score",
+              "value": "={{ $('AI Agent').item.json.output.lead_score }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2848,
+        80
+      ],
+      "id": "c726e3ea-0025-4c98-aafe-0d7d2fca5a81",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "resume": "form",
+        "formTitle": "Follow-up",
+        "formDescription": "Record follow-up response",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "followup_response",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Interested"
+                  },
+                  {
+                    "option": "Not Interested"
+                  },
+                  {
+                    "option": "No Response"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2864,
+        272
+      ],
+      "id": "067dd5a4-8652-4b27-8415-5c8eea034e27",
+      "name": "Wait2",
+      "webhookId": "0e4d3aa9-c3c5-41c8-9ba4-24857800a268"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5baf118b-2016-413e-9db1-2a3031836d07",
+              "leftValue": "={{$json.followup_response}}",
+              "rightValue": "Interested",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3120,
+        240
+      ],
+      "id": "0af43859-0a59-4178-820d-50858dafc8ac",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8e8cad83-e77b-43ff-9ec7-198d2ca30962",
+              "name": "status",
+              "value": "sales_handoff",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3440,
+        224
+      ],
+      "id": "351b4588-a46c-4561-9f52-b8564d8147a0",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dc3cae92-3af3-4417-bc68-7cd8140d2928",
+              "name": "status",
+              "value": "nurture",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        3440,
+        448
+      ],
+      "id": "77e42215-8e38-42c1-bbba-e7e91f3650dd",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "543c2af8-7808-47a5-9bf0-914551cce58a",
+              "name": "status",
+              "value": "archive",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2320,
+        480
+      ],
+      "id": "9c41ce41-d787-4104-a125-4995c1d5fe10",
+      "name": "Edit Fields4"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Lead Name": "Rahul Sharma",
+          "Job Title": "Marketing Manager",
+          "Company": "TechNova Solutions",
+          "Industry": "SaaS",
+          "Company Size": "51-200",
+          "Location": "Bangalore, India",
+          "Website": "https://technovasolutions.example",
+          "Pain Point": "Need to improve lead generation and automate repetitive marketing outreach.",
+          "Buying Signal": "Actively evaluating AI automation solutions for sales and marketing.",
+          "Source": "LinkedIn",
+          "Email": "abhinav2006parihar@gmail.com",
+          "submittedAt": "2026-08-12T11:44:28.708-04:00",
+          "formMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Insert documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert documents": {
+      "main": [
+        [
+          {
+            "node": "Find documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find documents": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "Update documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "934a2b45-383f-4b4f-87cc-1bededc6e336",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d560b4f5bddd6ec0833e6a431ec367630d29a03568376a87077592b2b2af16a7"
+  },
+  "nodeGroups": [],
+  "id": "SUL9k5btuM3T1c8y",
+  "tags": []
+}
